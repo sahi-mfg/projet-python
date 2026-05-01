@@ -10,11 +10,17 @@ ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 BASE_URL = "https://graph.microsoft.com/beta"
 HEADERS = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
 
+
+
+
 # Exercice 1
 def member_of():
     """Retourne le display_name et l'id de toutes les équipes de l'utilisateur."""
     url = f"{BASE_URL}/me/memberof"
     response = requests.get(url, headers=HEADERS)
+
+    if not check_response(response):
+        return {}
     
     if response.status_code == 200:
         teams_data = response.json().get('value', [])
@@ -30,20 +36,42 @@ for name, id in teams.items():
     print(f'channel name: {name} - channel id: {id}')
 
 
+def check_response(response):
+    """Vérifie si le token est encore valide."""
+    if response.status_code == 401:
+        print("--- ATTENTION : Votre token a expiré ! ---")
+        print("Allez sur : https://developer.microsoft.com/en-us/graph/graph-explorer")
+        print("Copiez le nouveau token et mettez à jour la variable ACCESS_TOKEN.")
+        return False
+    return True
+
 # Exercice 2
 def get_channels(team_id):
-    """Retourne tous les canaux d'une équipe donnée."""
+    """
+    Retourne un dictionnaire {nom_du_canal: id_du_canal} 
+    pour l'équipe passée en paramètre.
+    """
     url = f"{BASE_URL}/teams/{team_id}/channels"
     response = requests.get(url, headers=HEADERS)
+
+    if not check_response(response):
+        return {} 
+        
+    
+    channels = {}
     
     if response.status_code == 200:
-        channels_data = response.json().get('value', [])
-        return [c['displayName'] for c in channels_data]
-    return []
+        data = response.json().get('value', [])
+        for c in data:
+            channels[c['id']] = c['displayName']
+    else:
+        print(f"Erreur lors de la récupération des canaux : {response.status_code}")
+        
+    return channels
 
 channels = get_channels("0a15ecbb-d5dc-49c8-a47f-fc5371492401")
-for channel in channels:
-    print(channel)
+for channel_id, channel_name in channels.items():
+    print(channel_id, channel_name)
 
 
 # Exercice 3
@@ -51,6 +79,8 @@ def get_messages(team_id, channel_id):
     """Retourne tous les messages et leurs réponses d'un canal."""
     url_messages = f"{BASE_URL}/teams/{team_id}/channels/{channel_id}/messages"
     res_msg = requests.get(url_messages, headers=HEADERS)
+    if not check_response(res_msg) or res_msg.status_code != 200:
+        return []
     
     all_data = []
     
