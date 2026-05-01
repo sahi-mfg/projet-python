@@ -12,6 +12,14 @@ HEADERS = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
 
 
 
+def check_response(response):
+    """Vérifie si le token est encore valide."""
+    if response.status_code == 401:
+        print("--- ATTENTION : Votre token a expiré ! ---")
+        print("Allez sur : https://developer.microsoft.com/en-us/graph/graph-explorer")
+        print("Copiez le nouveau token et mettez à jour la variable ACCESS_TOKEN.")
+        return False
+    return True
 
 # Exercice 1
 def member_of():
@@ -36,14 +44,7 @@ for name, id in teams.items():
     print(f'channel name: {name} - channel id: {id}')
 
 
-def check_response(response):
-    """Vérifie si le token est encore valide."""
-    if response.status_code == 401:
-        print("--- ATTENTION : Votre token a expiré ! ---")
-        print("Allez sur : https://developer.microsoft.com/en-us/graph/graph-explorer")
-        print("Copiez le nouveau token et mettez à jour la variable ACCESS_TOKEN.")
-        return False
-    return True
+
 
 # Exercice 2
 def get_channels(team_id):
