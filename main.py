@@ -7,6 +7,7 @@ from schemas import Team, Message, Channel, Reply, session
 load_dotenv()
 
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+
 BASE_URL = "https://graph.microsoft.com/beta"
 HEADERS = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
 
